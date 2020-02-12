@@ -97,7 +97,7 @@ public class Blackjack {
                 logCards(player);
                 if (player.getValue() != 21)
                 {
-                    System.out.println("Hit or Stand " + player.getName() + "?");
+                    System.out.println("Hit (h) or Stand (s) " + player.getName() + "?");
                     String resp = scnr.nextLine();
                     if (resp.equals("h"))
                     {
