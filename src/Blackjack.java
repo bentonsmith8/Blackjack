@@ -17,57 +17,21 @@ public class Blackjack {
         playerList.add(new Player("dealer", -1));
 
         for (int i = 0; i < numPlayers; i++) {
-            System.out.println("Enter name of player " + i);
+            System.out.println("Enter name of player " + (i + 1));
             String playername = scnr.nextLine();
             playerList.add(new Player(playername, STARTING_MONEY));
         }
         int wager;
-        String resp;
         //Game Loop
         do {
             //Set Wagers for each player
             wager = 100;
             for (int i = 1; i < playerList.size(); i++) {
-                Player player = playerList.get(i);
-                System.out.println(player.getName() + "'s balance: $" + player.getMoney());
-                System.out.println("Set wager (Default is $100):");
-                resp = scnr.nextLine();
-                if (resp.equals("") && player.getMoney() >= 100) {
-                    wager = 100;
-                }
-                else
-                {
-                    boolean betPlaced = false;
-                    while (!betPlaced)
-                    {
-                        try {
-                            wager = Integer.parseInt(resp);
-                            if (wager > player.getMoney())
-                            {
-                                System.out.println("Balance too low! Choose a lower wager!");
-                                resp = scnr.nextLine();
-                            }
-                            else if(wager <= 0)
-                            {
-                                System.out.println("Cannot wager $0!");
-                                resp = scnr.nextLine();
-                            }
-                            else{
-                                betPlaced = true;
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Please enter an integer.");
-                            resp = scnr.nextLine();
-                        }
-                    }
-                }
-                player.setWager(wager);
-                player.addMoney(-wager);
+                placeWager(scnr, wager, i);
             }
             //Give 2 cards to each player
-            for (Player p : playerList) {
-                p.takeCard(deck.drawCard());
-                p.takeCard(deck.drawCard());
+            for (int i = 0; i < playerList.size(); i++) {
+                i += drawInitCards(scnr, deck, i);
             }
             //Print to log
             logCards();
@@ -86,35 +50,13 @@ public class Blackjack {
 
             //Find which players won
             for (int j = 1; j < playerList.size(); j++) {
-                int result = compareToDealer(playerList.get(j));
-                playerList.get(j).setResult(result);
+                playerList.get(j).setResult(compareToDealer(playerList.get(j)));
             }
             System.out.println();
 
             //Print the result of each player
             for (int i = 1; i < playerList.size(); i++) {
-                Player p = playerList.get(i);
-                if (p.getResult() == 2) {
-                    System.out.println("Blackjack! " + p.getName() + " won!");
-                    p.addMoney((int)(p.getWager() * (3 / 2.0)));
-                    System.out.println(p.getName() + " wins $" + (int)(p.getWager() * (5 / 2.0)));    
-                }
-                else if (p.getResult() == 1)
-                {
-                    System.out.println(p.getName() + " won!");
-                    p.addMoney(p.getWager() * 2);
-                    System.out.println(p.getName() + " wins $" + (p.getWager() * 2));    
-                }
-                else if (p.getResult() == 0)
-                {
-                    System.out.println(p.getName() + " tied with dealer, wager has been restored.");
-                    p.addMoney(p.getWager());
-                }
-                else if (p.getResult() == -1)
-                {
-                    System.out.println("Better luck next time " + p.getName());
-                }
-                System.out.println();
+                printPlayerResult(i);
             }
 
             //Clear the player's hand for the next game
@@ -137,7 +79,112 @@ public class Blackjack {
         } while (!scnr.nextLine().equals("q"));
         scnr.close();
     }
+
+    private static void placeWager(Scanner scnr, int wager, int i) {
+        String resp;
+        Player player = playerList.get(i);
+        System.out.println(player.getName() + "'s balance: $" + player.getMoney());
+        System.out.println("Set wager (Default is $100):");
+        resp = scnr.nextLine();
+        if (resp.equals("") && player.getMoney() >= 100) {
+            wager = 100;
+        }
+        else
+        {
+            boolean betPlaced = false;
+            while (!betPlaced)
+            {
+                try {
+                    wager = Integer.parseInt(resp);
+                    if (wager > player.getMoney())
+                    {
+                        System.out.println("Balance too low! Choose a lower wager!");
+                        resp = scnr.nextLine();
+                    }
+                    else if(wager <= 0)
+                    {
+                        System.out.println("Cannot wager $0!");
+                        resp = scnr.nextLine();
+                    }
+                    else{
+                        betPlaced = true;
+                    }
+                } catch (Exception e) {
+                    System.out.println("Please enter an integer.");
+                    resp = scnr.nextLine();
+                }
+            }
+        }
+        player.setWager(wager);
+        player.addMoney(-wager);
+    }
+
+    private static int drawInitCards(Scanner scnr, Deck deck, int i) {
+        int returnval = 0;
+        Player p = playerList.get(i);
+        p.takeCard(deck.drawCard());
+        p.takeCard(deck.drawCard());
+        if (i != 0)
+        {
+            returnval = checkForSplit(p, scnr, i, deck);
+        }
+        return returnval;
+    }
+
+    private static void printPlayerResult(int i) {
+        Player p = playerList.get(i);
+        Player ap;
+        if (p.getName().substring(((p.getName().length() < 5) ? 0 : p.getName().length() - 5), p.getName().length()).equals("split"))
+            ap = playerList.get(i - 1);
+        else
+            ap = p;
+        if (p.getResult() == 2) {
+            System.out.println("Blackjack! " + p.getName() + " won!");
+            ap.addMoney((int)(ap.getWager() * (3 / 2.0)));
+            System.out.println(ap.getName() + " wins $" + (int)(ap.getWager() * (5 / 2.0)));    
+        }
+        else if (p.getResult() == 1)
+        {
+            System.out.println(p.getName() + " won!");
+            ap.addMoney(ap.getWager() * 2);
+            System.out.println(ap.getName() + " wins $" + (ap.getWager() * 2));    
+        }
+        else if (p.getResult() == 0)
+        {
+            System.out.println(p.getName() + " tied with dealer, wager has been restored.");
+            ap.addMoney(ap.getWager());
+        }
+        else if (p.getResult() == -1)
+        {
+            System.out.println("Better luck next time " + p.getName());
+        }
+        if (ap != p)
+        {
+            playerList.remove(i);
+        }
+        System.out.println();
+    }
     
+    private static int checkForSplit(Player p, Scanner scnr, int index, Deck deck) {
+        int returnval = 0;
+        if (p.getHand().get(0).getRank() == p.getHand().get(1).getRank())
+        {
+            logCards(p);
+            System.out.println(p.getName() + ", would you like to split?");
+            if (scnr.nextLine().equals("y")) {
+                playerList.add(index + 1, new Player(p.getName() + "-split", p.getWager()));
+                Player ps = playerList.get(index + 1);
+                p.addMoney(-p.getWager());
+                p.setWager(p.getWager() * 2);
+                ps.addMoney(-p.getWager());
+                ps.takeCard(p.getHand().get(1));
+                p.playCard(1);
+                returnval = 1;
+            } 
+        }
+        return returnval;
+    }
+
     private static void balanceCheck() {
         for (int i = 1; i < playerList.size(); i++) {
             Player player = playerList.get(i);

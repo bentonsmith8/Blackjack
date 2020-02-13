@@ -1,15 +1,17 @@
 import java.util.ArrayList;
-import java.util.Collections;
+// import java.util.Collections;
 
 public class Player {
 	
 	// Declare player's name and define player's hand
 	private String name;
 	private ArrayList<Card> hand = new ArrayList<>();
+	private ArrayList<Card> splithand = new ArrayList<>();
 	private boolean standing = false;
 	private int money;
 	private int wager;
 	private int result;
+	private boolean split = false;
 	
 	// Constructor that initializes a player with a given name
 	public Player(String name, int money) {
@@ -28,10 +30,16 @@ public class Player {
 		return new ArrayList<>(hand);
 	}
 
+	public ArrayList<Card> getSplitHand() {
+		return new ArrayList<>(splithand);
+	}
+
+
 	// Clears a player's hand for the next round
 	public void clearHand()
 	{
 		hand.clear();
+		split = false;
 		standing = false;
 	}
 	// Returns how many cards left in player's hand
@@ -42,7 +50,7 @@ public class Player {
 	// Adds a passed card to the player's hand and sorts it
 	public void takeCard(Card card) {
 		hand.add(card);
-		Collections.sort(hand);
+		// Collections.sort(hand);
 	}
 	
 	// Returns and removes a specified card from the player's hand 
@@ -122,6 +130,16 @@ public class Player {
 	public void setResult(int result)
 	{
 		this.result = result;
+	}
+
+	public boolean isSplit() {
+		return split;
+	}
+
+	public void split() {
+		splithand.add(hand.get(1));
+		hand.remove(1);
+		split = true;
 	}
 }
 
