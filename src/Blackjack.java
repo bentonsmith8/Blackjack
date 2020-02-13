@@ -10,9 +10,12 @@ public class Blackjack {
         //Create new shuffled deck
         Deck deck = new Deck();
         //Prompt for players
-        System.out.print("Enter number of Players: ");
-        int numPlayers = scnr.nextInt();
-        scnr.nextLine();
+        int numPlayers;
+        do {
+            System.out.print("Enter number of Players: ");
+            numPlayers = scnr.nextInt();  
+            scnr.nextLine();  
+        } while (numPlayers <= 0);
         System.out.println();
         playerList.add(new Player("dealer", -1));
 
