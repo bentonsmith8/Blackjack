@@ -7,9 +7,13 @@ public class Player {
 	private String name;
 	private ArrayList<Card> hand = new ArrayList<>();
 	private boolean standing = false;
+	private int money;
+	private int wager;
+	private int result;
 	
 	// Constructor that initializes a player with a given name
-	public Player(String name) {
+	public Player(String name, int money) {
+		this.money = money;
 		this.name = name;
 		hand.ensureCapacity(5);
 	}
@@ -94,6 +98,30 @@ public class Player {
 	public void stand()
 	{
 		standing = true;
+	}
+	public int getMoney()
+	{
+		return money;
+	}
+	public void addMoney(int change)
+	{
+		money += change;
+	}
+	public int getWager()
+	{
+		return wager;
+	}
+	public void setWager(int wager)
+	{
+		this.wager = wager;
+	}
+	public int getResult()
+	{
+		return result;
+	}
+	public void setResult(int result)
+	{
+		this.result = result;
 	}
 }
 
