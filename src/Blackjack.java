@@ -97,7 +97,7 @@ public class Blackjack {
                 if (p.getResult() == 2) {
                     System.out.println("Blackjack! " + p.getName() + " won!");
                     p.addMoney((int)(p.getWager() * (3 / 2.0)));
-                    System.out.println(p.getName() + " wins " + (int)(p.getWager() * (5 / 2.0)));    
+                    System.out.println(p.getName() + " wins $" + (int)(p.getWager() * (5 / 2.0)));    
                 }
                 else if (p.getResult() == 1)
                 {
@@ -127,7 +127,11 @@ public class Blackjack {
 
             //Check the remaining balance of each player
             balanceCheck();
-
+            if (playerList.size() == 1)
+            {
+                System.out.println("All players are broke!\nExiting game...");
+                break;
+            }
             //Prompt to play again
             System.out.println("Play again? (q to quit)");
         } while (!scnr.nextLine().equals("q"));
